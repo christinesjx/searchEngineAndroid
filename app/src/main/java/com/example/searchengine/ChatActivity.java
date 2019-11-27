@@ -1,36 +1,38 @@
 package com.example.searchengine;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-
+import android.view.Menu;
+import android.view.MenuItem;
+import com.example.searchengine.Database.AddToMongoDB;
+import com.example.searchengine.Database.BruteForce;
 import com.example.searchengine.Model.Message;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends BaseActivity {
 
     private Button btnSend;
     private EditText inputMsg;
     private ListView listViewMessages;
     Context context;
     LayoutInflater inflater;
-    private ArrayList<Message> messageList;
-    private MessagesListAdapter mAdapter;
+    //private MessagesListAdapter mAdapter;
 
+    AddToMongoDB addToMongoDB;
+    Mode mode;
+    Mode modeSelected;
+
+    BruteForce bruteForce;
+
+    enum Mode {bruteforce, mongoDB, mysql, lucene;}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,20 +45,63 @@ public class ChatActivity extends AppCompatActivity {
 
         context = getApplicationContext();
         inflater = getLayoutInflater();
-        messageList = new ArrayList<>();
-
-
-        mAdapter = new MessagesListAdapter(this, messageList);
         listViewMessages.setAdapter(mAdapter);
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendMessage();
+                getReply();
             }
         });
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.option_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.item1:
+                modeSelected = mode.bruteforce;
+                Toast.makeText(getApplicationContext(),"BruteForce Selected",Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.item2:
+                modeSelected = mode.mysql;
+                Toast.makeText(getApplicationContext(),"MySql Selected",Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.item3:
+                modeSelected = mode.lucene;
+                Toast.makeText(getApplicationContext(),"lucene Selected",Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.item4:
+                modeSelected = mode.mongoDB;
+                Toast.makeText(getApplicationContext(),"MongoDB Selected",Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.item5:
+                addToMongoDB = new AddToMongoDB(context);
+                //addToMongoDB.databaseSetUp();
+                //addToMongoDB.transferToMongoDB();
+                bruteForce = new BruteForce(context);
+
+                Toast.makeText(getApplicationContext(),"Loading...",Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.item6:
+                Toast.makeText(getApplicationContext(),"history...",Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, HistoryActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
 
     private void sendMessage()
@@ -75,75 +120,40 @@ public class ChatActivity extends AppCompatActivity {
         message.setMessage(msg);
         message.setSelf(true);
 
-        //messageList.add(message);
+        //history
         mAdapter.notifyDataSetChanged();
         msg = msg.replace(" ","+");
 
-        //TODO: search(msg) in db
         Log.i("msg", msg);
         mAdapter.appendMessage(message);
     }
 
-    public class MessagesListAdapter extends BaseAdapter {
 
-        private Context context;
-        private List<Message> messagesItems;
+    private void getReply(){
 
-        public MessagesListAdapter(Context context, List<Message> navDrawerItems) {
-            this.context = context;
-            this.messagesItems = navDrawerItems;
+        messageList.get(messageList.size()-1).getMessage();
+
+        String msg = "please select a searching system";
+//        if(modeSelected == mode.bruteforce){
+//
+//            msg = bruteForce.searchInFile("activfit","{\"activity\":\"unknown\",\"duration\":41143403}}");
+//
+//        }
+
+        if(modeSelected == mode.bruteforce){
+            bruteForce = new BruteForce(context);
+            msg = bruteForce.searchInFile("activfit","\"start_time\":\"Mon Mar 6 12:47:01 EST 2017\"");
         }
 
-        @Override
-        public int getCount() {
-            return messagesItems.size();
-        }
+        Message message = new Message();
+        message.setSuccess(1);
+        message.setMessage(msg);
+        message.setSelf(false);
+        message.setMode(modeSelected);
 
-        @Override
-        public Object getItem(int position) {
-            return messagesItems.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            Message m = messagesItems.get(position);
-
-            LayoutInflater mInflater = (LayoutInflater) context
-                    .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-
-            if (messagesItems.get(position).isSelf()) {
-                convertView = mInflater.inflate(R.layout.list_item_msg_right, null);
-            } else {
-                convertView = mInflater.inflate(R.layout.list_item_msg_left, null);
-            }
-
-            TextView lblFrom = (TextView) convertView.findViewById(R.id.lblMsgFrom);
-            TextView txtMsg = (TextView) convertView.findViewById(R.id.txtMsg);
-
-            txtMsg.setText(m.getMessage());
-
-            return convertView;
-        }
-
-
-        private void appendMessage(final Message m) {
-            runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    messageList.add(m);
-                    mAdapter.notifyDataSetChanged();
-                    // Playing device's notification
-                }
-            });
-        }
-
+        mAdapter.notifyDataSetChanged();
+        mAdapter.appendMessage(message);
     }
+
 
 }
