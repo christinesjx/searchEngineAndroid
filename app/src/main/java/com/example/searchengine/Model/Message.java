@@ -6,7 +6,16 @@ public class Message {
     private String errorMessage;
     private String message;
     private boolean isSelf;
+    private Enum mode;
 
+
+    public Enum getMode() {
+        return mode;
+    }
+
+    public void setMode(Enum mode) {
+        this.mode = mode;
+    }
 
     public Integer getSuccess() {
         return success;
