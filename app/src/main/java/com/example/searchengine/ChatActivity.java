@@ -13,6 +13,7 @@ import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.example.searchengine.Database.AddToMongoDB;
+import com.example.searchengine.Database.AddToMysql;
 import com.example.searchengine.Database.BruteForce;
 import com.example.searchengine.Model.Message;
 
@@ -51,7 +52,12 @@ public class ChatActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 sendMessage();
-                getReply();
+                try{
+                    getReply();
+
+                }catch (Exception e){
+
+                }
             }
         });
 
@@ -71,6 +77,8 @@ public class ChatActivity extends BaseActivity {
             case R.id.item1:
                 modeSelected = mode.bruteforce;
                 Toast.makeText(getApplicationContext(),"BruteForce Selected",Toast.LENGTH_LONG).show();
+                bruteForce = new BruteForce(context);
+
                 return true;
             case R.id.item2:
                 modeSelected = mode.mysql;
@@ -88,7 +96,6 @@ public class ChatActivity extends BaseActivity {
                 addToMongoDB = new AddToMongoDB(context);
                 //addToMongoDB.databaseSetUp();
                 //addToMongoDB.transferToMongoDB();
-                bruteForce = new BruteForce(context);
 
                 Toast.makeText(getApplicationContext(),"Loading...",Toast.LENGTH_LONG).show();
                 return true;
@@ -129,20 +136,24 @@ public class ChatActivity extends BaseActivity {
     }
 
 
-    private void getReply(){
+    private void getReply() throws Exception{
 
         messageList.get(messageList.size()-1).getMessage();
 
         String msg = "please select a searching system";
-//        if(modeSelected == mode.bruteforce){
-//
-//            msg = bruteForce.searchInFile("activfit","{\"activity\":\"unknown\",\"duration\":41143403}}");
-//
-//        }
 
-        if(modeSelected == mode.bruteforce){
-            bruteForce = new BruteForce(context);
-            msg = bruteForce.searchInFile("activfit","\"start_time\":\"Mon Mar 6 12:47:01 EST 2017\"");
+        if(modeSelected == null){
+            msg = "please select a searching system";
+        }else if(modeSelected == mode.bruteforce){
+            //msg = bruteForce.searchInFile("activfit","\"start_time\":\"Mon Mar 6 12:47:01 EST 2017\"");
+        }else if(modeSelected == mode.mysql){
+            msg = "sql";
+           // AddToMysql addToMysql = new AddToMysql(context);
+           // addToMysql.transferToMysql();
+        }else if(modeSelected == mode.mongoDB){
+            msg = "mongodb...";
+        }else if(modeSelected == mode.lucene){
+            msg = "lucene...";
         }
 
         Message message = new Message();
