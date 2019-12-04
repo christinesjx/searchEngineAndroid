@@ -62,9 +62,9 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
         System.out.println(Arrays.toString(tableNames.toArray()));
     }
 
-    public Cursor getData(String table, String field) {
+    public Cursor getData(String table, String field, String value) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from "+table,null);
+        Cursor res = db.rawQuery("select * from "+table +" where " + field + " like " + value,null);
         return res;
     }
 

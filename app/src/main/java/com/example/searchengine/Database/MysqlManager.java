@@ -2,6 +2,8 @@ package com.example.searchengine.Database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
+
 import org.json.simple.JSONValue;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -44,7 +46,6 @@ public class MysqlManager {
         //Parse the json file using simple-json library
         Object fileObjects= JSONValue.parse(readerJson);
         JSONArray arrayObjects=(JSONArray)fileObjects;
-
         readerJson.close();
 
         return arrayObjects;
@@ -72,31 +73,26 @@ public class MysqlManager {
     }
 
 
-    public String search(String searchStr){
+    public String search(String searchStr) {
         String[] strings = searchStr.split(";");
         String table = strings[0];
         String field = strings[1];
         String value = strings[2];
 
-        Cursor res = mysqldbHelper.getData(table, field);
+        Cursor res = mysqldbHelper.getData(table, field, value);
 
         int totalMatch = 0;
         StringBuffer buffer = new StringBuffer();
-        if(res != null && res.getCount() > 0){
-            while(res.moveToNext()){
-
-                int columnIndex = res.getColumnIndex(field);
-
-                if(res.getString(columnIndex).contains(value)){
-                    int count = res.getColumnCount();
-                    for(int i = 1; i < count; i++){
-                        buffer.append(res.getColumnName(i) + ": " + res.getString(i) + "\n");
-                    }
-                    totalMatch++;
+        if (res != null && res.getCount() > 0) {
+            while (res.moveToNext()) {
+                int count = res.getColumnCount();
+                for (int i = 1; i < count; i++) {
+                    buffer.append(res.getColumnName(i) + ": " + res.getString(i) + "\n");
                 }
+                totalMatch++;
             }
         }
-        System.out.println(totalMatch);
+        Log.i("totalMatch", String.valueOf(totalMatch));
         return buffer.toString();
     }
 
