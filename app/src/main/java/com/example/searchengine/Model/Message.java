@@ -9,13 +9,9 @@ public class Message {
     private Enum mode;
 
 
-    public Enum getMode() {
-        return mode;
-    }
+    public Enum getMode() { return mode; }
 
-    public void setMode(Enum mode) {
-        this.mode = mode;
-    }
+    public void setMode(Enum mode) { this.mode = mode; }
 
     public Integer getSuccess() {
         return success;
