@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import androidx.annotation.Nullable;
 
 public class MysqlDatabaseHelper extends SQLiteOpenHelper{
@@ -14,19 +17,9 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
     public static final String SMARTWATCH_DATABASE = "smartwatch";
     public static final String ACTIVFIT_TABLE = "activfit";
     public static final String ACTIVITY_TABLE = "activity";
-    public static final String BATTERY_TABLE = "battery";
+    public static final String BATTERY_TABLE = "batterysensor";
     public static final String BLUETOOTH_TABLE = "bluetooth";
     public static final String HEARTRATE_TABLE = "heartrate";
-
-    public static final String ACTIVFIT_COL_1 = "start_time";
-    public static final String ACTIVFIT_COL_2 = "end_time";
-    public static final String ACTIVFIT_COL_3 = "timestamp";
-    public static final String ACTIVFIT_COL_4 = "activity";
-    public static final String ACTIVFIT_COL_5 = "duration";
-
-
-
-
 
 
     public MysqlDatabaseHelper(@Nullable Context context) {
@@ -35,12 +28,11 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + ACTIVFIT_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,start_time TEXT,end_time TEXT,activity TEXT,duration TEXT)");
-        db.execSQL("create table " + ACTIVITY_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,NAME TEXT,SURNAME TEXT,MARKS INTEGER)");
-        db.execSQL("create table " + BATTERY_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,NAME TEXT,SURNAME TEXT,MARKS INTEGER)");
-        db.execSQL("create table " + BLUETOOTH_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,NAME TEXT,SURNAME TEXT,MARKS INTEGER)");
-        db.execSQL("create table " + HEARTRATE_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,NAME TEXT,SURNAME TEXT,MARKS INTEGER)");
-
+        db.execSQL("create table " + ACTIVFIT_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,sensor_name TEXT,start_time TEXT,end_time TEXT,activity TEXT,duration TEXT)");
+        db.execSQL("create table " + ACTIVITY_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,sensor_name TEXT,timestamp TEXT,time_stamp TEXT,step_counts TEXT,step_delta TEXT)");
+        db.execSQL("create table " + BATTERY_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,sensor_name TEXT,timestamp TEXT,percent TEXT,charging TEXT)");
+        db.execSQL("create table " + BLUETOOTH_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,sensor_name TEXT,timestamp TEXT,state TEXT)");
+        db.execSQL("create table " + HEARTRATE_TABLE +" (ID INTEGER PRIMARY KEY AUTOINCREMENT,sensor_name TEXT,timestamp TEXT,bpm TEXT)");
     }
 
     @Override
@@ -53,21 +45,32 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
         onCreate(db);
     }
 
-    public Cursor getAllData() {
+    public void getAllTables(){
+        ArrayList<String> tableNames = new ArrayList<String>();
+
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from "+ACTIVFIT_TABLE,null);
+        Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        while(cursor.moveToNext()){
+            String tableName = cursor.getString(0);
+            if(tableName.equals("android_metadata")){
+                continue;
+            }else{
+                tableNames.add(tableName);
+            }
+        }
+
+        System.out.println(Arrays.toString(tableNames.toArray()));
+    }
+
+    public Cursor getData(String table, String field) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("select * from "+table,null);
         return res;
     }
 
-    public boolean insertDataACTIVFIT(String startTime,String endTime,String timestamp, String activity, String duration) {
+    public boolean insertData(String table, ContentValues contentValues) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(ACTIVFIT_COL_1,startTime);
-        contentValues.put(ACTIVFIT_COL_2,endTime);
-        contentValues.put(ACTIVFIT_COL_3,timestamp);
-        contentValues.put(ACTIVFIT_COL_4,activity);
-        contentValues.put(ACTIVFIT_COL_5,duration);
-        long result = db.insert(ACTIVFIT_TABLE,null ,contentValues);
+        long result = db.insert(table,null ,contentValues);
         if(result == -1)
             return false;
         else
