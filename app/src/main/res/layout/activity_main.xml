@@ -21,47 +21,11 @@
 
         <Button
             style="@android:style/Widget.Button"
-            android:id = "@+id/bruteForce_mode"
+            android:id = "@+id/setup_dbs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimary"
-            android:text="Brute Force"
-            android:layout_marginBottom="80dp"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@android:color/white" />
-
-        <Button
-            style="@android:style/Widget.Button"
-            android:id = "@+id/mongodb_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            android:text="MongoDB"
-            android:onClick="selectMongoMode"
-            android:layout_marginBottom="80dp"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@android:color/white" />
-
-
-        <Button
-            style="@android:style/Widget.Button"
-            android:id = "@+id/mysql_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            android:text="MySQL"
-            android:layout_marginBottom="80dp"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@android:color/white" />
-
-
-        <Button
-            style="@android:style/Widget.Button"
-            android:id = "@+id/lucene_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            android:text="Lucene"
+            android:text="Setup all DBs"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@android:color/white" />
 

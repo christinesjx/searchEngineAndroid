@@ -1,7 +1,5 @@
 package com.example.searchengine.Database;
-
 import android.content.Context;
-
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -21,8 +19,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystems;
@@ -44,7 +40,7 @@ public class LuceneManager {
         this.indexPath = context.getFilesDir().getPath()+"/index";
     }
 
-    public void createIndex() throws IOException, ParseException {
+    public void createIndex() throws IOException {
         openIndex();
         parseAllFiles();
         finish();
@@ -127,8 +123,6 @@ public class LuceneManager {
     private JSONArray parseFile(String file) throws IOException {
 
         InputStreamReader readerJson = new InputStreamReader(context.getAssets().open(file));
-
-
         Object fileObjects= JSONValue.parse(readerJson);
         JSONArray arrayObjects=(JSONArray)fileObjects;
         readerJson.close();

@@ -1,16 +1,13 @@
 package com.example.searchengine.Database;
 
 import android.content.Context;
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class BruteForce {
 
-    Context context;
-
+    private  Context context;
     public BruteForce(Context context) {
         this.context = context;
     }
