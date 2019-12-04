@@ -3,7 +3,6 @@ package com.example.searchengine;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -12,28 +11,30 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.example.searchengine.Database.AddToMongoDB;
-import com.example.searchengine.Database.AddToMysql;
+
+import com.example.searchengine.Database.LuceneManager;
+import com.example.searchengine.Database.MongoManager;
+import com.example.searchengine.Database.MysqlManager;
 import com.example.searchengine.Database.BruteForce;
 import com.example.searchengine.Model.Message;
 
 
 public class ChatActivity extends BaseActivity {
 
+    private Context context;
+    private LayoutInflater inflater;
+    private MongoManager mongoManager;
+    private BruteForce bruteForce;
+    private LuceneManager luceneManager;
+    private MysqlManager mysqlManager;
+
     private Button btnSend;
     private EditText inputMsg;
     private ListView listViewMessages;
-    Context context;
-    LayoutInflater inflater;
-    //private MessagesListAdapter mAdapter;
+    private Mode mode;
+    private Mode modeSelected;
 
-    AddToMongoDB addToMongoDB;
-    Mode mode;
-    Mode modeSelected;
-
-    BruteForce bruteForce;
-
-    enum Mode {bruteforce, mongoDB, mysql, lucene;}
+    enum Mode {bruteforce, mongoDB, mysql, lucene}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,6 @@ public class ChatActivity extends BaseActivity {
                 }
             }
         });
-
     }
 
     @Override
@@ -73,34 +73,34 @@ public class ChatActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case R.id.item1:
                 modeSelected = mode.bruteforce;
-                Toast.makeText(getApplicationContext(),"BruteForce Selected",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "BruteForce Selected", Toast.LENGTH_LONG).show();
                 bruteForce = new BruteForce(context);
-
                 return true;
             case R.id.item2:
                 modeSelected = mode.mysql;
-                Toast.makeText(getApplicationContext(),"MySql Selected",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "MySql Selected", Toast.LENGTH_LONG).show();
+                try {
+                    mysqlManager = new MysqlManager(context);
+                } catch (Exception e) {}
                 return true;
             case R.id.item3:
                 modeSelected = mode.lucene;
-                Toast.makeText(getApplicationContext(),"lucene Selected",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Lucene Selected", Toast.LENGTH_LONG).show();
+                try {
+                    luceneManager = new LuceneManager(context);
+                    luceneManager.createIndex();
+                } catch (Exception e) {}
                 return true;
             case R.id.item4:
                 modeSelected = mode.mongoDB;
-                Toast.makeText(getApplicationContext(),"MongoDB Selected",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "MongoDB Selected", Toast.LENGTH_LONG).show();
+                mongoManager = new MongoManager(context);
                 return true;
             case R.id.item5:
-                addToMongoDB = new AddToMongoDB(context);
-                //addToMongoDB.databaseSetUp();
-                //addToMongoDB.transferToMongoDB();
-
-                Toast.makeText(getApplicationContext(),"Loading...",Toast.LENGTH_LONG).show();
-                return true;
-            case R.id.item6:
-                Toast.makeText(getApplicationContext(),"history...",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "History...", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this, HistoryActivity.class);
                 startActivity(intent);
                 return true;
@@ -108,6 +108,7 @@ public class ChatActivity extends BaseActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
 
 
@@ -129,38 +130,44 @@ public class ChatActivity extends BaseActivity {
 
         //history
         mAdapter.notifyDataSetChanged();
-        msg = msg.replace(" ","+");
-
-        Log.i("msg", msg);
         mAdapter.appendMessage(message);
     }
 
 
     private void getReply() throws Exception{
 
-        messageList.get(messageList.size()-1).getMessage();
+        String lastMessageFromUser = messageList.get(messageList.size()-1).getMessage();
 
-        String msg = "please select a searching system";
+        String msg = "";
+
+        long startTime = System.nanoTime();
+
 
         if(modeSelected == null){
             msg = "please select a searching system";
+
         }else if(modeSelected == mode.bruteforce){
-            //msg = bruteForce.searchInFile("activfit","\"start_time\":\"Mon Mar 6 12:47:01 EST 2017\"");
+            msg = bruteForce.searchInFile(lastMessageFromUser);
+
         }else if(modeSelected == mode.mysql){
-            msg = "sql";
-           // AddToMysql addToMysql = new AddToMysql(context);
-           // addToMysql.transferToMysql();
+            msg = mysqlManager.search(lastMessageFromUser);
+
         }else if(modeSelected == mode.mongoDB){
-            msg = "mongodb...";
+            msg = mongoManager.search(lastMessageFromUser);
+
         }else if(modeSelected == mode.lucene){
-            msg = "lucene...";
+            msg = luceneManager.search(lastMessageFromUser);
         }
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime);
 
         Message message = new Message();
         message.setSuccess(1);
         message.setMessage(msg);
         message.setSelf(false);
         message.setMode(modeSelected);
+        message.setExecutionTime(duration);
 
         mAdapter.notifyDataSetChanged();
         mAdapter.appendMessage(message);

@@ -19,9 +19,10 @@ public class MysqlManager {
     private Context context;
     private MysqlDatabaseHelper mysqldbHelper;
 
-    public MysqlManager(Context context) {
+    public MysqlManager(Context context) throws IOException {
         this.context = context;
         mysqldbHelper = new MysqlDatabaseHelper(context);
+        parseAllFiles();
     }
 
 

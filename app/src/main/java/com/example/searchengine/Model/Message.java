@@ -7,7 +7,11 @@ public class Message {
     private String message;
     private boolean isSelf;
     private Enum mode;
+    private long executionTime;
 
+    public long getExecutionTime() { return executionTime; }
+
+    public void setExecutionTime(long executionTime) { this.executionTime = executionTime; }
 
     public Enum getMode() { return mode; }
 

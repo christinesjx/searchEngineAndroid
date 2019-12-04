@@ -15,8 +15,16 @@ public class BruteForce {
         this.context = context;
     }
 
-    public String searchInFile(String filename, String searchTerm) {
+    public String searchInFile(String searchStr) {
+
+        String[] strings = searchStr.split(";");
+        String  filename = strings[0];
+        String field = strings[1];
+        String value = strings[2];
         BufferedReader reader = null;
+
+        StringBuilder sb = new StringBuilder();
+
         try {
             filename += ".txt";
             reader = new BufferedReader(new InputStreamReader(context.getAssets().open(filename), "UTF-8"));
@@ -28,8 +36,8 @@ public class BruteForce {
                 } else if (mLine.contains("]")) {
                     mLine = mLine.substring(0, mLine.length() - 1);
                 }
-                if(mLine.contains(searchTerm)){
-                    return mLine;
+                if(mLine.contains(field) && mLine.contains(value)){
+                    sb.append(mLine + "\n");
                 }
 
             }
@@ -46,6 +54,6 @@ public class BruteForce {
             }
         }
 
-        return "";
+        return sb.toString();
     }
 }

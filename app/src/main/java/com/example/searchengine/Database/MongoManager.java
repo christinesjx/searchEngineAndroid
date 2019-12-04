@@ -25,12 +25,12 @@ import java.util.Set;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
-public class AddToMongoDB {
+public class MongoManager {
 
-    MongoDatabase dbObj;
-    Context context;
+    private MongoDatabase dbObj;
+    private Context context;
 
-    public AddToMongoDB(Context context) {
+    public MongoManager(Context context) {
         this.context = context;
     }
 
@@ -117,7 +117,6 @@ public class AddToMongoDB {
         }
 
         return docs;
-
     }
 
 
