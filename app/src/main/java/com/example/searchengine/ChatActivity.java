@@ -9,6 +9,8 @@ import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.example.searchengine.Model.Message;
+import com.parse.ParseUser;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -59,6 +61,12 @@ public class ChatActivity extends MainActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if(item.getItemId() == R.id.logout){
+
+            ParseUser.logOut();
+            Intent intent = new Intent(getApplicationContext(),Login.class);
+            startActivity(intent);
+        }
         switch (id) {
             case R.id.item1:
                 modeSelected = mode.bruteforce;

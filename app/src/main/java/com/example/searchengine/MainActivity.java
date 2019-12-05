@@ -14,7 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 
 public class MainActivity extends BaseActivity {
 
-    private MainActivity context;
+    //private MainActivity context;
     private LoadingDialog loadingDialog;
     private Button button;
 
@@ -22,7 +22,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        this.context = this;
+        //this.context = this;
         loadingDialog = new LoadingDialog(this);
 
         button = (Button) findViewById(R.id.setup_dbs);
@@ -34,7 +34,7 @@ public class MainActivity extends BaseActivity {
 
                 try {
                     System.out.println("bruteforce");
-                    bruteForce = new BruteForce(context);
+                    bruteForce = new BruteForce(MainActivity.this);
                     System.out.println("mongoManager");
                     mongoManager = new MongoManager(MainActivity.this);
                     System.out.println("luceneManager");
