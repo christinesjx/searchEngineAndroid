@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +47,10 @@ public class LuceneManager {
         finish();
     }
 
+    /**
+     * open lucene index
+     * @return
+     */
     private boolean openIndex(){
         try {
 
@@ -66,8 +69,10 @@ public class LuceneManager {
         return false;
     }
 
+
     /**
      * Add documents to the index
+     * @param jsonObjects
      */
     private void addDocuments(JSONArray jsonObjects) {
         for (JSONObject object : (List<JSONObject>) jsonObjects) {
@@ -75,11 +80,11 @@ public class LuceneManager {
             for (String field : (Set<String>) object.keySet()) {
                 Class type = object.get(field).getClass();
                 if (type.equals(String.class)) {
-                    doc.add(new StringField(field, (String) object.get(field), Field.Store.YES));
+                    doc.add(new StringField(field, (String) object.get(field.toLowerCase()), Field.Store.YES));
                 } else if (type.equals(JSONObject.class)) {
                     JSONObject ja = (JSONObject) object.get(field);
                     for (String f : (Set<String>) ja.keySet()) {
-                        doc.add(new StringField(f, String.valueOf(ja.get(f)), Field.Store.YES));
+                        doc.add(new StringField(f, String.valueOf(ja.get(f)).toLowerCase(), Field.Store.YES));
                     }
                 }
             }
@@ -91,6 +96,7 @@ public class LuceneManager {
             }
         }
     }
+
 
     /**
      * Write the document to the index and close it
@@ -104,8 +110,10 @@ public class LuceneManager {
         }
     }
 
+
     /**
-     * Parse all files.
+     * Parse all files
+     * @throws IOException
      */
     private void parseAllFiles() throws IOException {
         String [] list;
@@ -113,7 +121,6 @@ public class LuceneManager {
         for (String file : list) {
 
             if(file.contains(".txt")){
-                System.out.println(file);
                 JSONArray jsonObjects = parseFile(file);
                 addDocuments(jsonObjects);
             }
@@ -122,6 +129,12 @@ public class LuceneManager {
 
 
 
+    /**
+     * Parse one file.
+     * @param file
+     * @return
+     * @throws IOException
+     */
     private JSONArray parseFile(String file) throws IOException {
 
         InputStreamReader readerJson = new InputStreamReader(context.getAssets().open(file));
@@ -133,6 +146,12 @@ public class LuceneManager {
     }
 
 
+    /**
+     * search a string [sensor; field; value]
+     * @param searchString
+     * @return
+     * @throws IOException
+     */
     public String search(String searchString) throws IOException {
 
         String[] strings = searchString.split(";");
@@ -156,9 +175,7 @@ public class LuceneManager {
             count++;
 
             Document document = indexSearcher.doc(scoreDoc.doc);
-
             List<IndexableField> fields = document.getFields();
-
             sb.append(count + ": ");
 
             for(int i = 0; i < fields.size(); i++){
@@ -169,7 +186,6 @@ public class LuceneManager {
             sb.append("\n");
         }
 
-        System.out.println(topDocs.totalHits);
         return sb.toString();
     }
 

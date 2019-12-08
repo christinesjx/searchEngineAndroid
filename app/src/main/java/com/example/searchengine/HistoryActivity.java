@@ -3,7 +3,6 @@ package com.example.searchengine;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -119,18 +116,16 @@ public class HistoryActivity extends BaseActivity {
             txtMsg.setText(msgFromUser.getMessage() + " ");
             txtMode.setText(msgFromChatbot.getMode() + " ");
 
-
-
-
             return convertView;
         }
 
     }
 
 
-
-
-
+    /**
+     * pop up a customdialog that contains detail info of a history record
+     * @param pos
+     */
     private void customDialog(int pos) {
 
         AlertDialog.Builder myDialog = new AlertDialog.Builder(HistoryActivity.this);

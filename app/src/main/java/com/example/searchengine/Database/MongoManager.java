@@ -1,7 +1,6 @@
 package com.example.searchengine.Database;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
@@ -10,15 +9,14 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.stitch.android.core.Stitch;
 import com.mongodb.stitch.android.core.StitchAppClient;
 import com.mongodb.stitch.android.services.mongodb.local.LocalMongoDbService;
-
 import org.bson.Document;
 import org.bson.conversions.Bson;
-
-import java.io.BufferedReader;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,105 +30,137 @@ public class MongoManager {
 
     public MongoManager(Context context) {
         this.context = context;
+        if(databaseSetUp()){
+            try {
+                parseAllFiles();
+            }catch (Exception e){
+
+            }
+        }
     }
 
-    public void transferToMongoDB(){
+
+    /**
+     * parse all files and insert to database
+     * @throws IOException
+     */
+    private void parseAllFiles() throws IOException {
         String [] list;
-        try {
-            list = context.getAssets().list("");
-            for (String file : list) {
-                if(file.contains(".txt")){
-                    transferToMongoDB(file);
-                }
+        list = context.getAssets().list("");
+        for (String file : list) {
+
+            if(file.contains(".txt")){
+                System.out.println(file);
+                JSONArray jsonObjects = parseFile(file);
+
+                MongoCollection<Document> col = dbObj.getCollection(file.split(".txt")[0]);
+                col.insertMany(addDocuments(jsonObjects));
             }
-        } catch (IOException e) {
-            Log.i("error","error");
         }
     }
 
 
-    public void transferToMongoDB(String filename){
-        String fileNameStr = filename.split(".txt")[0];
 
-        MongoCollection<Document> col = dbObj.getCollection(fileNameStr);
+    /**
+     * Parse a Json file.
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    private JSONArray parseFile(String file) throws IOException {
 
-        System.out.println(filename);
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(context.getAssets().open(filename), "UTF-8"));
-            // do reading, usually loop until end of file reading
-            String mLine;
-            while ((mLine = reader.readLine()) != null) {
-                if (mLine.contains("[")) {
-                    mLine = mLine.substring(1);
-                } else if (mLine.contains("]")) {
-                    mLine = mLine.substring(0, mLine.length() - 1);
-                }
-                col.insertOne(Document.parse(mLine));
-            }
+        InputStreamReader readerJson = new InputStreamReader(context.getAssets().open(file));
+        Object fileObjects= JSONValue.parse(readerJson);
+        JSONArray arrayObjects=(JSONArray)fileObjects;
+        readerJson.close();
 
-            System.out.println("total docs "+col.countDocuments());
-
-        } catch (IOException e) {
-            //log the exception
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //log the exception
-                }
-            }
-        }
-
+        return arrayObjects;
     }
 
-    public void databaseSetUp(){
+
+    /**
+     * Add documents to the index
+     * @param jsonObjects
+     * @return
+     */
+    public List<Document> addDocuments(JSONArray jsonObjects) {
+        List<Document> list = new ArrayList<>();
+        for (JSONObject object : (List<JSONObject>) jsonObjects) {
+            Document doc = new Document();
+            for (String field : (Set<String>) object.keySet()) {
+                Class type = object.get(field).getClass();
+                if (type.equals(String.class)) {
+                    doc.put(field, String.valueOf(object.get(field)).toLowerCase());
+                } else if (type.equals(JSONObject.class)) {
+                    JSONObject ja = (JSONObject) object.get(field);
+                    for (String f : (Set<String>) ja.keySet()) {
+                        doc.put(f, String.valueOf(ja.get(f)).toLowerCase());
+                    }
+                }
+            }
+            list.add(doc);
+        }
+        return list;
+    }
+
+
+    /**
+     * search a string [sensor; field; value]
+     * @param searchStr
+     * @return
+     */
+    public String search(String searchStr){
+
+        String[] strings = searchStr.split(";");
+
+        MongoCollection<Document> col = dbObj.getCollection(strings[0]);
+
+        List<Bson> filters = new ArrayList<>();
+        filters.add(eq(strings[1], new BasicDBObject("$regex", strings[2])));
+        List<Document> docs = col.find(and(filters)).into(new ArrayList<>());
+
+        int count = 0;
+        StringBuilder sb = new StringBuilder();
+        for(Document doc: docs){
+            count++;
+            sb.append(count + ": ");
+            for(String key: doc.keySet()){
+                if(!key.equals("_id")){
+                    sb.append(key + ": " + doc.get(key) + ", ");
+                }
+            }
+            sb.append("\n");
+        }
+
+
+        return sb.toString();
+    }
+
+
+    /**
+     * setup mongodb databse
+     * mongo stitch
+     *
+     * @return
+     * true: haven't setup, first time user
+     * false: databse is already setup
+     */
+    public boolean databaseSetUp(){
 
         final StitchAppClient client = Stitch.initializeAppClient("stitch_client_app_id");
         final MongoClient mobileClient = client.getServiceClient(LocalMongoDbService.clientFactory);
         MongoDatabase dbObj = mobileClient.getDatabase("admin");
         this.dbObj = dbObj;
 
+        int count = 0;
         for (String name : dbObj.listCollectionNames()) {
             System.out.println("Collections inside this db:" + name);
-            //dbObj.getCollection(name).deleteMany(new Document());
-        }
-    }
 
-    public List<Document> search(String searchStr){
-
-        String[] strings = searchStr.split(";");
-        System.out.println(strings[0]);
-        System.out.println(strings[1]);
-        System.out.println(strings[2]);
-
-        MongoCollection<Document> col = dbObj.getCollection(strings[0]);
-
-        List<Bson> filters = new ArrayList<>();
-        filters.add(eq(strings[1], new BasicDBObject("$regex", strings[2])));
-
-        List<Document> docs = col.find(and(filters)).into(new ArrayList<>());
-
-        for(Document doc: docs){
-            System.out.println(doc.toString());
+            count++;
         }
 
-        return docs;
+        return count == 1;
+
     }
-
-
-    public boolean processString(String searchField){
-
-        Set<String> notString = new HashSet<>();
-        notString.add("bpm");
-        notString.add("percent");
-        notString.add("step_counts");
-        notString.add("step_delta");
-        notString.add("charging");
-
-        return notString.contains(searchField);
-    }
-
 
 }

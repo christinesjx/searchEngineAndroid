@@ -12,6 +12,12 @@ public class BruteForce {
         this.context = context;
     }
 
+
+    /**
+     * search a string [sensor; field; value]
+     * @param searchStr
+     * @return
+     */
     public String searchInFile(String searchStr) {
 
         String[] strings = searchStr.split(";");

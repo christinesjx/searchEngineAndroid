@@ -29,7 +29,6 @@ public class ChatActivity extends MainActivity {
     private MessagesListAdapter mAdapter = new MessagesListAdapter(this, messageList);
 
     private Button btnSend;
-    private MenuItem currentMode;
     private EditText inputMsg;
     private ListView listViewMessages;
     private Mode mode;
@@ -44,6 +43,7 @@ public class ChatActivity extends MainActivity {
 
         btnSend = (Button) findViewById(R.id.btnSend);
         inputMsg = (EditText) findViewById(R.id.inputMsg);
+        inputMsg.setHint(modeSelected.toString() + "       sensor;field;value");
         listViewMessages = (ListView) findViewById(R.id.list_view);
         listViewMessages.setAdapter(mAdapter);
 
@@ -76,18 +76,22 @@ public class ChatActivity extends MainActivity {
         switch (id) {
             case R.id.item1:
                 modeSelected = mode.bruteforce;
+                inputMsg.setHint(modeSelected.toString());
                 Toast.makeText(getApplicationContext(), "BruteForce Selected", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.item2:
                 modeSelected = mode.mysql;
+                inputMsg.setHint(modeSelected.toString());
                 Toast.makeText(getApplicationContext(), "MySql Selected", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.item3:
                 modeSelected = mode.lucene;
+                inputMsg.setHint(modeSelected.toString());
                 Toast.makeText(getApplicationContext(), "Lucene Selected", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.item4:
                 modeSelected = mode.mongoDB;
+                inputMsg.setHint(modeSelected.toString());
                 Toast.makeText(getApplicationContext(), "MongoDB Selected", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.item5:
@@ -156,7 +160,7 @@ public class ChatActivity extends MainActivity {
                 }
 
             } else if (modeSelected == mode.mongoDB) {
-                msg = mongoManager.search("heartrate;bpm;79");
+                msg = mongoManager.search(lastMessageFromUser);
                 if (msg.length() == 0) {
                     msg = "mongodb";
                 }
@@ -170,7 +174,7 @@ public class ChatActivity extends MainActivity {
         }
 
         long endTime = System.nanoTime();
-        long duration = (endTime - startTime);
+        long duration = (endTime - startTime)/1000000;
 
         Message message = new Message();
         message.setSuccess(1);

@@ -30,6 +30,10 @@ public class MysqlManager {
 
 
 
+    /**
+     * parse all files and add to mysql database
+     * @throws IOException
+     */
     public void parseAllFiles() throws IOException {
         String [] list;
         list = context.getAssets().list("");
@@ -44,6 +48,12 @@ public class MysqlManager {
     }
 
 
+    /**
+     * parse one file
+     * @param file
+     * @return
+     * @throws IOException
+     */
     public JSONArray parseFile(String file) throws IOException {
 
         InputStreamReader readerJson = new InputStreamReader(context.getAssets().open(file));
@@ -56,6 +66,11 @@ public class MysqlManager {
     }
 
 
+    /**
+     * insert data
+     * @param filename
+     * @param jsonObjects
+     */
     public void addToMySql(String filename, JSONArray jsonObjects) {
         for (JSONObject object : (List<JSONObject>) jsonObjects) {
             ContentValues contentValues = new ContentValues();
@@ -77,6 +92,12 @@ public class MysqlManager {
     }
 
 
+    /**
+     * search a string [sensor; field; value]
+     * @param searchStr
+     * @return
+     */
+
     public String search(String searchStr) {
         String[] strings = searchStr.split(";");
         String table = strings[0];
@@ -86,18 +107,19 @@ public class MysqlManager {
         Cursor res = mysqldbHelper.getData(table, field, value);
 
         int totalMatch = 0;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (res != null && res.getCount() > 0) {
             while (res.moveToNext()) {
                 int count = res.getColumnCount();
-                for (int i = 1; i < count; i++) {
-                    buffer.append(res.getColumnName(i) + ": " + res.getString(i) + "\n");
-                }
                 totalMatch++;
+                sb.append(totalMatch + ": ");
+                for (int i = 1; i < count; i++) {
+                    sb.append(res.getColumnName(i) + ": " + res.getString(i) + "\n");
+                }
             }
         }
         Log.i("totalMatch", String.valueOf(totalMatch));
-        return buffer.toString();
+        return sb.toString();
     }
 
     public void getTables(){

@@ -45,6 +45,9 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
         onCreate(db);
     }
 
+    /**
+     * get tables' name of this db
+     */
     public void getAllTables(){
         ArrayList<String> tableNames = new ArrayList<String>();
 
@@ -62,12 +65,25 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
         System.out.println(Arrays.toString(tableNames.toArray()));
     }
 
+    /**
+     * search data, based on the table, field, and value
+     * @param table
+     * @param field
+     * @param value
+     * @return
+     */
     public Cursor getData(String table, String field, String value) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("select * from "+table +" where " + field + " like " + value,null);
         return res;
     }
 
+    /**
+     * insert data into table
+     * @param table
+     * @param contentValues
+     * @return
+     */
     public boolean insertData(String table, ContentValues contentValues) {
         SQLiteDatabase db = this.getWritableDatabase();
         long result = db.insert(table,null ,contentValues);
@@ -77,6 +93,10 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
             return true;
     }
 
+    /**
+     * check if the db is empty
+     * @return
+     */
     public boolean isEmpty(){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("select * from " + ACTIVFIT_TABLE, null);

@@ -10,7 +10,6 @@ import com.example.searchengine.Database.LuceneManager;
 import com.example.searchengine.Database.MongoManager;
 import com.example.searchengine.Database.MysqlManager;
 
-import androidx.appcompat.app.AlertDialog;
 
 public class MainActivity extends BaseActivity {
 
@@ -35,11 +34,14 @@ public class MainActivity extends BaseActivity {
                 try {
                     System.out.println("bruteforce");
                     bruteForce = new BruteForce(MainActivity.this);
+
                     System.out.println("mongoManager");
                     mongoManager = new MongoManager(MainActivity.this);
+
                     System.out.println("luceneManager");
                     luceneManager = new LuceneManager(MainActivity.this);
                     luceneManager.createIndex();
+
                     System.out.println("mysqlManager");
                     mysqlManager = new MysqlManager(MainActivity.this);
 
@@ -49,7 +51,9 @@ public class MainActivity extends BaseActivity {
                     startActivity(i);
 
                 } catch (Exception e) {
+                    loadingDialog.dismissLoadingDialog();
                 }
+                loadingDialog.dismissLoadingDialog();
             }
 
         });
