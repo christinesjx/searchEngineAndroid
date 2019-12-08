@@ -1,18 +1,26 @@
 package com.example.searchengine;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.example.searchengine.Model.Chat;
 import com.example.searchengine.Model.Message;
 import com.parse.ParseUser;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -21,10 +29,11 @@ public class ChatActivity extends MainActivity {
     private MessagesListAdapter mAdapter = new MessagesListAdapter(this, messageList);
 
     private Button btnSend;
+    private MenuItem currentMode;
     private EditText inputMsg;
     private ListView listViewMessages;
     private Mode mode;
-    private Mode modeSelected;
+    private Mode modeSelected = Mode.bruteforce;
 
     enum Mode {bruteforce, mongoDB, mysql, lucene}
 
@@ -41,11 +50,14 @@ public class ChatActivity extends MainActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage();
+                Chat chat = new Chat();
+                chat.setMsgFromUser(sendMessage());
                 try{
-                    getReply();
+                    chat.setMsgFromChatbot(getReply());
                 }catch (Exception e){
 
+                }finally {
+                    chatList.add(chat);
                 }
             }
         });
@@ -61,12 +73,6 @@ public class ChatActivity extends MainActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(item.getItemId() == R.id.logout){
-
-            ParseUser.logOut();
-            Intent intent = new Intent(getApplicationContext(),Login.class);
-            startActivity(intent);
-        }
         switch (id) {
             case R.id.item1:
                 modeSelected = mode.bruteforce;
@@ -85,8 +91,13 @@ public class ChatActivity extends MainActivity {
                 Toast.makeText(getApplicationContext(), "MongoDB Selected", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.item5:
-                Toast.makeText(getApplicationContext(), "History...", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "History", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this, HistoryActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.logout:
+                ParseUser.logOut();
+                intent = new Intent(getApplicationContext(),Login.class);
                 startActivity(intent);
                 return true;
             default:
@@ -97,13 +108,12 @@ public class ChatActivity extends MainActivity {
 
 
 
-    private void sendMessage()
+    private Message sendMessage()
     {
-        String msg = inputMsg.getText().toString().trim();
+        String msg = inputMsg.getText().toString().trim().toLowerCase();
 
         if( msg.length()==0) {
             Toast.makeText(getApplicationContext(), "Enter a message", Toast.LENGTH_SHORT).show();
-            return;
         }
 
         inputMsg.setText("");
@@ -116,10 +126,12 @@ public class ChatActivity extends MainActivity {
         //history
         mAdapter.notifyDataSetChanged();
         mAdapter.appendMessage(message);
+
+        return message;
     }
 
 
-    private void getReply() throws Exception{
+    private Message getReply() throws Exception{
 
         String lastMessageFromUser = messageList.get(messageList.size()-1).getMessage();
 
@@ -144,12 +156,16 @@ public class ChatActivity extends MainActivity {
                 }
 
             } else if (modeSelected == mode.mongoDB) {
-                msg = "mongodb";
-                //msg = mongoManager.search(lastMessageFromUser);
+                msg = mongoManager.search("heartrate;bpm;79");
+                if (msg.length() == 0) {
+                    msg = "mongodb";
+                }
 
             } else if (modeSelected == mode.lucene) {
-                msg = "lucene";
                 msg = luceneManager.search(lastMessageFromUser);
+                if (msg.length() == 0) {
+                    msg = "lucene";
+                }
             }
         }
 
@@ -165,6 +181,8 @@ public class ChatActivity extends MainActivity {
 
         mAdapter.notifyDataSetChanged();
         mAdapter.appendMessage(message);
+
+        return message;
     }
 
 
@@ -190,4 +208,63 @@ public class ChatActivity extends MainActivity {
     }
 
 
+
+
+    public class MessagesListAdapter extends BaseAdapter {
+
+        private ChatActivity context;
+        private List<Message> messagesItems;
+
+        public MessagesListAdapter(ChatActivity context, List<Message> navDrawerItems) {
+            this.context = context;
+            this.messagesItems = navDrawerItems;
+        }
+
+        @Override
+        public int getCount() {
+            return messagesItems.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return messagesItems.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            Message m = messagesItems.get(position);
+
+            LayoutInflater mInflater = (LayoutInflater) context
+                    .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+
+            if (messagesItems.get(position).isSelf()) {
+                convertView = mInflater.inflate(R.layout.list_item_msg_right, null);
+            } else {
+                convertView = mInflater.inflate(R.layout.list_item_msg_left, null);
+            }
+
+            TextView txtMsg = (TextView) convertView.findViewById(R.id.txtMsg);
+
+            txtMsg.setText(m.getMessage());
+
+            return convertView;
+        }
+
+        public void appendMessage(final Message m) {
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    messageList.add(m);
+                }
+            });
+        }
+
+    }
 }

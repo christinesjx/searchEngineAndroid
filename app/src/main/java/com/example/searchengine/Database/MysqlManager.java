@@ -22,7 +22,10 @@ public class MysqlManager {
     public MysqlManager(Context context) throws IOException {
         this.context = context;
         mysqldbHelper = new MysqlDatabaseHelper(context);
-        parseAllFiles();
+
+        if(mysqldbHelper.isEmpty()){
+            parseAllFiles();
+        }
     }
 
 

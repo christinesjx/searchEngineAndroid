@@ -22,6 +22,8 @@ public class BruteForce {
 
         StringBuilder sb = new StringBuilder();
 
+        int count = 0;
+
         try {
             filename += ".txt";
             reader = new BufferedReader(new InputStreamReader(context.getAssets().open(filename), "UTF-8"));
@@ -34,7 +36,8 @@ public class BruteForce {
                     mLine = mLine.substring(0, mLine.length() - 1);
                 }
                 if(mLine.contains(field) && mLine.contains(value)){
-                    sb.append(mLine + "\n");
+                    count ++;
+                    sb.append(count + ": " + mLine + "\n");
                 }
 
             }

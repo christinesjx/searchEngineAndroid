@@ -8,6 +8,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -131,24 +133,6 @@ public class LuceneManager {
     }
 
 
-
-    public void printAllDocument() {
-        try {
-            //Check the index has been created successfully
-            Directory indexDirectory = FSDirectory.open(FileSystems.getDefault().getPath(indexPath));
-            IndexReader indexReader = DirectoryReader.open(indexDirectory);
-            int numDocs = indexReader.numDocs();
-            for (int i = 0; i < numDocs; i++) {
-                Document document = indexReader.document(i);
-                System.out.println("d=" + document);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
     public String search(String searchString) throws IOException {
 
         String[] strings = searchString.split(";");
@@ -166,12 +150,27 @@ public class LuceneManager {
         topDocs = indexSearcher.search(query, 100);
         scoreDocs = topDocs.scoreDocs;
 
+        int count = 0;
+        StringBuilder sb = new StringBuilder();
         for (ScoreDoc scoreDoc : scoreDocs) {
+            count++;
+
             Document document = indexSearcher.doc(scoreDoc.doc);
+
+            List<IndexableField> fields = document.getFields();
+
+            sb.append(count + ": ");
+
+            for(int i = 0; i < fields.size(); i++){
+                sb.append(fields.get(i).name() + ": ");
+                sb.append(fields.get(i).stringValue() + ", ");
+            }
+
+            sb.append("\n");
         }
 
         System.out.println(topDocs.totalHits);
-        return String.valueOf(topDocs.totalHits);
+        return sb.toString();
     }
 
 

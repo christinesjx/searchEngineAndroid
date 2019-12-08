@@ -77,5 +77,11 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
             return true;
     }
 
+    public boolean isEmpty(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("select * from " + ACTIVFIT_TABLE, null);
+        return !res.moveToNext();
+    }
+
 
 }
