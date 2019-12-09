@@ -16,25 +16,21 @@ import com.parse.ParseUser;
 
 public class MainActivity extends BaseActivity {
 
-    //private MainActivity context;
-    private LoadingDialog loadingDialog;
     private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //this.context = this;
-        loadingDialog = new LoadingDialog(this);
 
         button = (Button) findViewById(R.id.setup_dbs);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                loadingDialog.showLoadingDialog();
                 Toast.makeText(getApplicationContext(), "loading...", Toast.LENGTH_LONG).show();
 
                 try {
+
                     System.out.println("bruteforce");
                     bruteForce = new BruteForce(MainActivity.this);
 
@@ -49,14 +45,14 @@ public class MainActivity extends BaseActivity {
                     mysqlManager = new MysqlManager(MainActivity.this);
 
 
-                    Toast.makeText(getApplicationContext(), "chatbot...", Toast.LENGTH_LONG).show();
                     Intent i = new Intent(MainActivity.this, ChatActivity.class);
                     startActivity(i);
 
+
+
                 } catch (Exception e) {
-                    loadingDialog.dismissLoadingDialog();
+
                 }
-                loadingDialog.dismissLoadingDialog();
             }
 
         });
@@ -64,7 +60,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.option_menu, menu);
+        getMenuInflater().inflate(R.menu.logout_menu, menu);
         return true;
     }
     @Override

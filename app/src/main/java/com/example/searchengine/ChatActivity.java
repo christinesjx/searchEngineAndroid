@@ -43,10 +43,10 @@ public class ChatActivity extends MainActivity {
 
         btnSend = (Button) findViewById(R.id.btnSend);
         inputMsg = (EditText) findViewById(R.id.inputMsg);
-        inputMsg.setHint(modeSelected.toString() + "       sensor;field;value");
+        inputMsg.setHint(modeSelected.toString());
         listViewMessages = (ListView) findViewById(R.id.list_view);
         listViewMessages.setAdapter(mAdapter);
-
+        welcomeMessage();
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,6 +110,20 @@ public class ChatActivity extends MainActivity {
     }
 
 
+    private void welcomeMessage(){
+
+        String msg = "Hi, Welcome! please select a search mode. \n";
+
+        msg += "format ex: sensorname;field;value";
+
+        Message message = new Message();
+        message.setMessage(msg);
+
+
+        //mAdapter.notifyDataSetChanged();
+        mAdapter.appendMessage(message);
+
+    }
 
 
     private Message sendMessage()
@@ -123,7 +137,6 @@ public class ChatActivity extends MainActivity {
         inputMsg.setText("");
 
         Message message = new Message();
-        message.setSuccess(1);
         message.setMessage(msg);
         message.setSelf(true);
 
@@ -139,45 +152,58 @@ public class ChatActivity extends MainActivity {
 
         String lastMessageFromUser = messageList.get(messageList.size()-1).getMessage();
 
-        String msg = "invalid input";
-        long startTime = System.nanoTime();
-
+        String msg = "invalid input, please search in this format: sensorname;field;value";
+        long startTime = 0;
+        long endTime = 0;
         if(valid(lastMessageFromUser)) {
 
             if (modeSelected == null) {
                 msg = "please select a searching system";
 
             } else if (modeSelected == mode.bruteforce) {
+                startTime = System.nanoTime();
                 msg = bruteForce.searchInFile(lastMessageFromUser);
+                endTime = System.nanoTime();
                 if (msg.length() == 0) {
-                    msg = "bruteforce";
+                    msg = "no result";
                 }
 
             } else if (modeSelected == mode.mysql) {
+                startTime = System.nanoTime();
                 msg = mysqlManager.search(lastMessageFromUser);
+                endTime = System.nanoTime();
                 if (msg.length() == 0) {
-                    msg = "bruteforce";
+                    msg = "no result";
                 }
 
             } else if (modeSelected == mode.mongoDB) {
+                startTime = System.nanoTime();
                 msg = mongoManager.search(lastMessageFromUser);
+                endTime = System.nanoTime();
                 if (msg.length() == 0) {
-                    msg = "mongodb";
+                    msg = "no result";
                 }
 
             } else if (modeSelected == mode.lucene) {
+                startTime = System.nanoTime();
                 msg = luceneManager.search(lastMessageFromUser);
+                endTime = System.nanoTime();
                 if (msg.length() == 0) {
-                    msg = "lucene";
+                    msg = "no result";
                 }
+            }
+        }else{
+            if(lastMessageFromUser.equals("bye")){
+                msg = "Bye! Thank you for using chatbot";
+                Message message = new Message();
+                message.setMessage(msg);
+                return message;
             }
         }
 
-        long endTime = System.nanoTime();
         long duration = (endTime - startTime)/1000000;
 
         Message message = new Message();
-        message.setSuccess(1);
         message.setMessage(msg);
         message.setSelf(false);
         message.setMode(modeSelected);

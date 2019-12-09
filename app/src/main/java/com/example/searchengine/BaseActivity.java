@@ -23,45 +23,6 @@ public class BaseActivity extends AppCompatActivity {
     public static MysqlManager mysqlManager;
 
 
-
-    public class LoadingDialog {
-
-        Activity activity;
-        private AlertDialog alertDialog;
-
-        public LoadingDialog(Activity activity) {
-            this.activity = activity;
-        }
-
-        public void showLoadingDialog() {
-            alertDialog = new AlertDialog.Builder(activity).create();
-            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable());
-            alertDialog.setCancelable(false);
-            alertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                    return (keyCode == KeyEvent.KEYCODE_SEARCH || keyCode == KeyEvent.KEYCODE_BACK);
-                }
-            });
-            alertDialog.show();
-            alertDialog.setContentView(R.layout.view_loading);
-            alertDialog.setCanceledOnTouchOutside(false);
-        }
-
-
-
-        public void dismissLoadingDialog() {
-            if (null != alertDialog && alertDialog.isShowing()) {
-                alertDialog.dismiss();
-            }
-        }
-
-
-    }
-
-
-
-
 }
 
 
