@@ -1,6 +1,8 @@
 package com.example.searchengine;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -9,6 +11,7 @@ import com.example.searchengine.Database.BruteForce;
 import com.example.searchengine.Database.LuceneManager;
 import com.example.searchengine.Database.MongoManager;
 import com.example.searchengine.Database.MysqlManager;
+import com.parse.ParseUser;
 
 
 public class MainActivity extends BaseActivity {
@@ -57,6 +60,23 @@ public class MainActivity extends BaseActivity {
             }
 
         });
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.option_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.equals(R.id.logout)){
+
+            ParseUser.logOut();
+            Intent intent = new Intent(getApplicationContext(),Login.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
