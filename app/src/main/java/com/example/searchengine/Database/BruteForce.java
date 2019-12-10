@@ -21,13 +21,12 @@ public class BruteForce {
     public String searchInFile(String searchStr) {
 
         String[] strings = searchStr.split(";");
-        String  filename = strings[0];
+        String filename = strings[0];
         String field = strings[1];
         String value = strings[2];
         BufferedReader reader = null;
 
         StringBuilder sb = new StringBuilder();
-
         int count = 0;
 
         try {
@@ -36,18 +35,11 @@ public class BruteForce {
             // do reading, usually loop until end of file reading
             String mLine;
             while ((mLine = reader.readLine()) != null) {
-                if (mLine.contains("[")) {
-                    mLine = mLine.substring(1);
-                } else if (mLine.contains("]")) {
-                    mLine = mLine.substring(0, mLine.length() - 1);
-                }
                 if(mLine.contains(field) && mLine.contains(value)){
                     count ++;
                     sb.append(count + ": " + mLine + "\n");
                 }
-
             }
-
         } catch (IOException e) {
             //log the exception
         } finally {
@@ -63,3 +55,4 @@ public class BruteForce {
         return sb.toString();
     }
 }
+
