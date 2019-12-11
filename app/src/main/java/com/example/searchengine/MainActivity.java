@@ -43,19 +43,21 @@ public class MainActivity extends BaseActivity {
 
                     System.out.println("mysqlManager");
                     mysqlManager = new MysqlManager(MainActivity.this);
-
-
                     Intent i = new Intent(MainActivity.this, ChatActivity.class);
                     startActivity(i);
+
 
 
 
                 } catch (Exception e) {
 
                 }
+                Intent i = new Intent(MainActivity.this, ChatActivity.class);
+                startActivity(i);
             }
 
         });
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
