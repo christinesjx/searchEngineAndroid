@@ -43,19 +43,21 @@ public class MainActivity extends BaseActivity {
 
                     System.out.println("mysqlManager");
                     mysqlManager = new MysqlManager(MainActivity.this);
-
-
                     Intent i = new Intent(MainActivity.this, ChatActivity.class);
                     startActivity(i);
+
 
 
 
                 } catch (Exception e) {
 
                 }
+                Intent i = new Intent(MainActivity.this, ChatActivity.class);
+                startActivity(i);
             }
 
         });
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,10 +67,10 @@ public class MainActivity extends BaseActivity {
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.equals(R.id.logout)){
+        if(item.getItemId()==R.id.logout_main){
 
             ParseUser.logOut();
-            Intent intent = new Intent(getApplicationContext(),Login.class);
+            Intent intent = new Intent(MainActivity.this,Login.class);
             startActivity(intent);
             return true;
         }
