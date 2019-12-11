@@ -122,8 +122,4 @@ public class MysqlManager {
         return sb.toString();
     }
 
-    public void getTables(){
-        mysqldbHelper.getAllTables();
-    }
-
 }
