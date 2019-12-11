@@ -67,10 +67,10 @@ public class MainActivity extends BaseActivity {
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.equals(R.id.logout)){
+        if(item.getItemId()==R.id.logout_main){
 
             ParseUser.logOut();
-            Intent intent = new Intent(getApplicationContext(),Login.class);
+            Intent intent = new Intent(MainActivity.this,Login.class);
             startActivity(intent);
             return true;
         }
