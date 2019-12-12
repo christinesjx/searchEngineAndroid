@@ -22,7 +22,6 @@ public class MysqlManager {
     public MysqlManager(Context context) throws IOException {
         this.context = context;
         mysqldbHelper = new MysqlDatabaseHelper(context);
-
         if(mysqldbHelper.isEmpty()){
             parseAllFiles();
         }
@@ -97,7 +96,6 @@ public class MysqlManager {
      * @param searchStr
      * @return
      */
-
     public String search(String searchStr) {
         String[] strings = searchStr.split(";");
         String table = strings[0];
@@ -121,5 +119,10 @@ public class MysqlManager {
         Log.i("totalMatch", String.valueOf(totalMatch));
         return sb.toString();
     }
+
+    public void getTables(){
+        mysqldbHelper.getAllTables();
+    }
+
 
 }

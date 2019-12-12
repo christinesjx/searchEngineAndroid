@@ -47,8 +47,6 @@ public class MainActivity extends BaseActivity {
                     startActivity(i);
 
 
-
-
                 } catch (Exception e) {
 
                 }

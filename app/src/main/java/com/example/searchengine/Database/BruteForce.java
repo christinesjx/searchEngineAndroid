@@ -1,6 +1,8 @@
 package com.example.searchengine.Database;
 
 import android.content.Context;
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,16 +21,13 @@ public class BruteForce {
      * @return
      */
     public String searchInFile(String searchStr) {
-
         String[] strings = searchStr.split(";");
         String filename = strings[0];
         String field = strings[1];
         String value = strings[2];
         BufferedReader reader = null;
-
         StringBuilder sb = new StringBuilder();
         int count = 0;
-
         try {
             filename += ".txt";
             reader = new BufferedReader(new InputStreamReader(context.getAssets().open(filename), "UTF-8"));
@@ -41,17 +40,16 @@ public class BruteForce {
                 }
             }
         } catch (IOException e) {
-            //log the exception
+            Log.i("bruteforce", e.toString());
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    //log the exception
+                    Log.i("reader close fail", e.toString());
                 }
             }
         }
-
         return sb.toString();
     }
 }

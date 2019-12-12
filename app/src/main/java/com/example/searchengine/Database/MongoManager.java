@@ -50,10 +50,9 @@ public class MongoManager {
         for (String file : list) {
 
             if(file.contains(".txt")){
-                System.out.println(file);
-                JSONArray jsonObjects = parseFile(file);
-
                 MongoCollection<Document> col = dbObj.getCollection(file.split(".txt")[0]);
+
+                JSONArray jsonObjects = parseFile(file);
                 col.insertMany(addDocuments(jsonObjects));
             }
         }
@@ -84,6 +83,9 @@ public class MongoManager {
      * @return
      */
     public List<Document> addDocuments(JSONArray jsonObjects) {
+        //{"sensor_name":"HeartRate","timestamp":"Sat Jun 10 16:33:20 EDT 2017","sensor_data":{"bpm":76}}
+        //"sensor_name":"HeartRate","timestamp":"Sat Jun 10 16:33:20 EDT 2017","bpm":76
+
         List<Document> list = new ArrayList<>();
         for (JSONObject object : (List<JSONObject>) jsonObjects) {
             Document doc = new Document();
@@ -110,9 +112,7 @@ public class MongoManager {
      * @return
      */
     public String search(String searchStr){
-
         String[] strings = searchStr.split(";");
-
         MongoCollection<Document> col = dbObj.getCollection(strings[0]);
 
         List<Bson> filters = new ArrayList<>();
@@ -131,8 +131,6 @@ public class MongoManager {
             }
             sb.append("\n");
         }
-
-
         return sb.toString();
     }
 
@@ -160,7 +158,6 @@ public class MongoManager {
         }
 
         return count == 1;
-
     }
 
 }

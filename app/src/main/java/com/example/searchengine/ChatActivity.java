@@ -119,8 +119,7 @@ public class ChatActivity extends MainActivity {
         Message message = new Message();
         message.setMessage(msg);
 
-
-        //mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
         mAdapter.appendMessage(message);
 
     }
@@ -197,6 +196,8 @@ public class ChatActivity extends MainActivity {
                 msg = "Bye! Thank you for using chatbot";
                 Message message = new Message();
                 message.setMessage(msg);
+                mAdapter.notifyDataSetChanged();
+                mAdapter.appendMessage(message);
                 return message;
             }
         }

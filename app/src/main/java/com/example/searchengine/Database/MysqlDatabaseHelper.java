@@ -54,7 +54,9 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
      */
     public Cursor getData(String table, String field, String value) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from "+table +" where " + field + " like '%"+value+"%'",null);
+
+        Cursor res = db.rawQuery("select * from "+table +" " +
+                "where " + field + " like '%"+value+"%'",null);
         return res;
     }
 
@@ -83,5 +85,25 @@ public class MysqlDatabaseHelper extends SQLiteOpenHelper{
         return !res.moveToNext();
     }
 
+
+    /**
+     * get tables' name of this db
+     */
+    public void getAllTables(){
+        ArrayList<String> tableNames = new ArrayList<String>();
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        while(cursor.moveToNext()){
+            String tableName = cursor.getString(0);
+            if(tableName.equals("android_metadata")){
+                continue;
+            }else{
+                tableNames.add(tableName);
+            }
+        }
+
+        System.out.println(Arrays.toString(tableNames.toArray()));
+    }
 
 }
